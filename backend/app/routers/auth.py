@@ -63,10 +63,11 @@ async def login(credentials: LoginRequest, response: Response, db: AsyncSession 
 
 
 @auth_router.post("/logout", summary="Выход из системы")
-async def logout(request: Request, response: Response):
+async def logout(response: Response):
     """Выход пользователя и удаление сессии."""
-    delete_session(request, response)
+    delete_session(response)
     return {"detail": "Вы вышли из системы"}
+
 
 # Новый маршрут для получения текущей сессии
 @auth_router.get("/session", summary="Получить текущую сессию")
@@ -77,4 +78,4 @@ async def get_session(request: Request):
         raise HTTPException(status_code=401, detail="Сессия не найдена")
     
     session_data = decode_session_token(session_token)
-    return session_data
+    return {"user_id": session_data["user_id"], "role": session_data["role"]}
