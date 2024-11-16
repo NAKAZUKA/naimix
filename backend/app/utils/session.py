@@ -1,6 +1,8 @@
 import uuid
 from fastapi import HTTPException, Request, Response
 from typing import Any, Dict
+import base64
+import json
 
 # Хранилище сессий (в памяти)
 sessions: Dict[str, Dict[str, Any]] = {}
@@ -19,9 +21,26 @@ def get_session(request: Request) -> Dict[str, Any]:
         raise HTTPException(status_code=401, detail="Сессия недействительна или истекла")
     return sessions[session_id]
 
-def delete_session(request: Request, response: Response):
-    """Удаляет текущую сессию."""
-    session_id = request.cookies.get("session_id")
-    if session_id and session_id in sessions:
-        del sessions[session_id]
-    response.delete_cookie("session_id")
+def delete_session(response: Response):
+    response.delete_cookie("session_token")
+
+
+def decode_session_token(token: str) -> dict:
+    try:
+        data = json.loads(base64.urlsafe_b64decode(token).decode())
+        if not all(key in data for key in ["user_id", "role", "email"]):
+            raise ValueError("Некорректная структура токена")
+        return data
+    except Exception:
+        raise HTTPException(status_code=401, detail="Невалидная сессия")
+
+
+def create_session(data: dict, response: Response, session_lifetime: int = 3600):
+    session_token = base64.urlsafe_b64encode(json.dumps(data).encode()).decode()
+    response.set_cookie(
+        key="session_token",
+        value=session_token,
+        httponly=True,
+        max_age=session_lifetime,
+        samesite="Lax",
+    )

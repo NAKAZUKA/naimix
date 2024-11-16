@@ -6,8 +6,11 @@ from app.models.user import User
 from app.schemas.user import UserCreate, UserResponse, LoginRequest
 from app.utils.validation import hash_password
 
+from app.utils.auth import verify_password, create_session
 from app.utils.auth import verify_password
 from app.utils.session import create_session, get_session, delete_session
+from app.utils.session import decode_session_token
+
 
 auth_router = APIRouter(tags=["Authentication"])
 
@@ -46,7 +49,6 @@ async def register_user(user_data: UserCreate, db: AsyncSession = Depends(get_db
 
 @auth_router.post("/login", summary="Авторизация пользователя")
 async def login(credentials: LoginRequest, response: Response, db: AsyncSession = Depends(get_db)):
-    """Авторизация пользователя с использованием сессий."""
     user_query = await db.execute(select(User).where(User.email == credentials.email))
     user = user_query.scalars().first()
 
@@ -56,10 +58,24 @@ async def login(credentials: LoginRequest, response: Response, db: AsyncSession 
     # Создаем сессию
     session_data = {"user_id": user.id, "role": user.role, "email": user.email}
     create_session(data=session_data, response=response)
-    return {"detail": "Авторизация успешна"}
+    
+    # Возвращаем роль в JSON
+    return {"detail": "Авторизация успешна", "role": user.role}
+
 
 @auth_router.post("/logout", summary="Выход из системы")
 async def logout(request: Request, response: Response):
     """Выход пользователя и удаление сессии."""
     delete_session(request, response)
     return {"detail": "Вы вышли из системы"}
+
+# Новый маршрут для получения текущей сессии
+@auth_router.get("/session", summary="Получить текущую сессию")
+async def get_session(request: Request):
+    """Возвращает данные текущей сессии пользователя."""
+    session_token = request.cookies.get("session_token")
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Сессия не найдена")
+    
+    session_data = decode_session_token(session_token)
+    return session_data
