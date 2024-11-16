@@ -1,58 +1,78 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Auth.css';
 
 const Register = () => {
-  const [username, setUsername] = useState(''); // Поле для имени пользователя
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState(''); // Выбранная роль
-  const [roles, setRoles] = useState([]); // Список ролей
+  const [role, setRole] = useState('');
+  const [roles, setRoles] = useState([]);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Функция для получения списка ролей
   const fetchRoles = async () => {
     try {
       const response = await axios.get('http://127.0.0.1:8000/roles/');
-      setRoles(response.data); // Установить роли из ответа
+      setRoles(response.data);
     } catch (err) {
       setError('Не удалось получить список ролей.');
     }
   };
 
-  useEffect(() => {
-    fetchRoles(); // Загружаем роли при монтировании компонента
+  useState(() => {
+    fetchRoles();
   }, []);
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
     try {
-      const userData = { username, email, password, role }; // Формируем данные для отправки
-      const response = await axios.post('http://127.0.0.1:8000/register', userData);
-      
-      if (response.status === 200) {
-        alert('Регистрация прошла успешно!');
-        navigate('/login'); // Перенаправление на страницу входа после регистрации
+      // Регистрация пользователя
+      await axios.post('http://127.0.0.1:8000/register', {
+        username,
+        email,
+        password,
+        role,
+      });
+
+      // Автоматический вход
+      const loginResponse = await axios.post(
+        'http://127.0.0.1:8000/login',
+        { email, password },
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (loginResponse.status === 200) {
+        const user = loginResponse.data;
+
+        if (user.role) {
+          localStorage.setItem('role', user.role);
+          navigate(user.role === 'hr' ? '/swiper' : user.role === 'кандидат' ? '/home' : '/');
+        } else {
+          throw new Error('Сервер не вернул роль пользователя.');
+        }
       }
     } catch (err) {
-      if (err.response && err.response.data) {
-        setError(err.response.data.message || 'Произошла ошибка при регистрации.');
-      } else {
-        setError('Произошла ошибка при регистрации.');
-      }
+      setError(
+        err.response?.data?.detail || 'Ошибка при регистрации/авторизации. Попробуйте снова.'
+      );
     }
   };
 
   return (
-    <div className='register-form'>
+    <div>
       <h1>Регистрация</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <form className='auth-form' onSubmit={handleRegister}>
+      <form className="auth-form" onSubmit={handleRegister}>
         <input
-          className='auth-input'
+          className="auth-input"
           type="text"
           placeholder="Имя пользователя"
           value={username}
@@ -60,7 +80,7 @@ const Register = () => {
           required
         />
         <input
-          className='auth-input'
+          className="auth-input"
           type="email"
           placeholder="Email"
           value={email}
@@ -68,14 +88,19 @@ const Register = () => {
           required
         />
         <input
-          className='auth-input'
+          className="auth-input"
           type="password"
           placeholder="Пароль"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <select className='auth-select' value={role} onChange={(e) => setRole(e.target.value)} required>
+        <select
+          className="auth-select"
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          required
+        >
           <option value="">Выберите роль</option>
           {roles.map((roleOption) => (
             <option key={roleOption.id} value={roleOption.name}>
@@ -83,7 +108,7 @@ const Register = () => {
             </option>
           ))}
         </select>
-        <button className='register-button' type="submit">Зарегистрироваться</button>        
+        <button type="submit">Зарегистрироваться</button>
       </form>
     </div>
   );

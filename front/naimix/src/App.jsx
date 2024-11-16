@@ -7,6 +7,7 @@ import Login from './components/Auth/Login.jsx'; // Импортируйте к�
 import Register from './components/Auth/Register.jsx'; // Импортируйте компонент Register
 import AuthPage from './components/Auth/AuthPage.jsx'; // Импортируйте компонент AuthPage
 import { SurveyProvider } from './components/SurveyForm/SurveyContext.jsx';
+import CheckSession from './components/Auth/ChechSession.jsx';
 
 function App() {
   return (
