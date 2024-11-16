@@ -6,7 +6,6 @@ from app.models.user import User
 from app.schemas.user import UserCreate, UserResponse, LoginRequest
 from app.utils.validation import hash_password
 
-from app.utils.auth import verify_password, create_session
 from app.utils.auth import verify_password
 from app.utils.session import create_session, get_session, delete_session
 from app.utils.session import decode_session_token
