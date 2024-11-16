@@ -29,7 +29,10 @@ class UserResponse(BaseModel):
 class UserUpdate(BaseModel):
     firstname: Optional[str]
     secondname: Optional[str]
-    birthday: Optional[datetime]
+    birthday: Optional[datetime] = Field(
+        None, 
+        description="Дата рождения в формате: день-месяц-год-час-минута (DD-MM-YYYY HH:MM)"
+    )
     bio: Optional[str]
     coordinates: Optional[List[str]]
     phone_number: Optional[str]

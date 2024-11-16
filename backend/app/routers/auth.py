@@ -1,10 +1,13 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Response, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.database import get_db
 from app.models.user import User
 from app.schemas.user import UserCreate, UserResponse
 from app.utils.validation import hash_password
+
+from app.utils.auth import verify_password
+from app.utils.session import create_session, get_session, delete_session
 
 auth_router = APIRouter(tags=["Authentication"])
 
@@ -39,3 +42,23 @@ async def register_user(user_data: UserCreate, db: AsyncSession = Depends(get_db
     await db.refresh(new_user)
 
     return new_user
+
+
+@auth_router.post("/login", summary="Авторизация пользователя")
+async def login(email: str, password: str, response: Response, db: AsyncSession = Depends(get_db)):
+    """Авторизация пользователя с использованием сессий."""
+    user_query = await db.execute(select(User).where(User.email == email))
+    user = user_query.scalars().first()
+    if not user or not verify_password(password, user.password):
+        raise HTTPException(status_code=401, detail="Неверные email или пароль")
+
+    # Создаем сессию
+    session_data = {"user_id": user.id, "role": user.role, "email": user.email}
+    create_session(data=session_data, response=response)
+    return {"detail": "Авторизация успешна"}
+
+@auth_router.post("/logout", summary="Выход из системы")
+async def logout(request: Request, response: Response):
+    """Выход пользователя и удаление сессии."""
+    delete_session(request, response)
+    return {"detail": "Вы вышли из системы"}
