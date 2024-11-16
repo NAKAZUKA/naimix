@@ -1,114 +1,136 @@
-import datetime
-from flask import Flask, render_template, request, send_from_directory, make_response
-from flask import  Flask, render_template, request, redirect, url_for, flash, make_response, session
-import MyFunc as mf
+from pprint import pprint
+
+from flask import Flask, request, jsonify
 import settings as conf
-
-app = Flask(__name__, template_folder=conf.GET("template"))
-# app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=365)
-app.secret_key = b'+4#y2L"F4Q8z\n\xec]/'
-# app.config.update(SESSION_COOKIE_SAMESITE="None", SESSION_COOKIE_SECURE=True)
-
-# @app.route('/')
-# def index():
-#     return render_template('home.html')
+import kery
+from flasgger import Swagger, SwaggerView, Schema, fields
 
 
-@app.route('/', methods=['GET', 'POST'])
-def auth():
+app = Flask(__name__)
+swagger = Swagger(app)
+
+'''
+{
+  "first": {
+    "FIO": "Молозаев",
+    "city": "Elista",
+    "day": 4,
+    "hour": 12,
+    "lat": 44.2558,
+    "lng": 46.3078,
+    "min": 30,
+    "month": 1,
+    "year": 2002
+  },
+  "second": {
+    "FIO": "Катков",
+    "city": "SPb",
+    "day": 23,
+    "hour": 9,
+    "lat": 30.3141,
+    "lng": 59.9386,
+    "min": 10,
+    "month": 3,
+    "year": 2004
+  }
+}
+'''
+
+@app.route('/anal_human', methods=['POST'])
+def anal_human():
+    """Анализ человека
+    SVG
+    ---
+    consumes: application/json
+    produces: application/json
+    parameters:
+        - name: body
+          in: "body"
+          type: object
+          example:
+            {
+            'FIO': 'Ivan Ivanov',
+            'day': 1, 'month': 1, 'year': 2000,
+            'hour': 12, 'min': 30,
+            'lng': 2.431121, 'lat': 1.411191,
+            'city': '---'
+            }
+    responses:
+        200:
+          description: "200 response"
+    """
+
+    DATA = dict()
+    if request.method == 'GET':
+        DATA = dict(request.args)
     if request.method == 'POST':
-        DATA = dict(request.form.to_dict())
-        print(DATA)
-        if mf.check_login_pass(login=DATA["login"], password=DATA["pass"], db=DATA["BD"]):
-            session["user"] = mf.login_to_id_user(login=DATA["login"], db=DATA["BD"])
-            session["BD"] = DATA["BD"]
-            print(session.values())
-            session.modified = True
-            return render_template("index.html")
-        else:
-            return render_template("auth-login.html", DATA={"status": "Неверные данные", "BDs": mf.get_BDs()})
-    if "user" in session.keys():
-        return render_template("index.html")
-    else:
-        return render_template("auth-login.html", DATA={"status": "", "BDs": mf.get_BDs()})
+        DATA = dict(request.get_json())
+    otv = dict()
+    try:
+        DATA['city']
+        otv = kery.anal_human(name=DATA['FIO'], year=DATA['year'], month=DATA['month'], day=DATA['day'], hour=DATA['hour'],
+                                       min=DATA['min'], lng=float(DATA['lng']), lat=float(DATA['lat']), city=DATA['city'])
+    except:
+        otv = kery.anal_human(name=DATA['FIO'], year=DATA['year'], month=DATA['month'], day=DATA['day'], hour=DATA['hour'],
+                                       min=DATA['min'], lng=float(DATA['lng']), lat=float(DATA['lat']))
+    r = kery.get_SVG_human(otv)
+    print(r)
+    otv = dict()
+    otv['SVG'] = r
+    return jsonify(otv)
 
 
-@app.route('/register', methods=['GET', 'POST'])
-def reg():
+@app.route('/anal_two_people', methods=['POST'])
+def anal_two_people():
+    """Анализ совместимости двух людей
+    SVG и % совместимости
+    ---
+    consumes: application/json
+    produces: application/json
+    parameters:
+        - name: body
+          in: "body"
+          type: object
+          example:
+            {
+            'first': {'FIO': 'Ivan Ivanov', 'day': 1, 'month': 1, 'year': 2000, 'hour': 12, 'min': 30, 'lng': 2.431121, 'lat': 1.411191, 'city': '---'},
+            'second': {'FIO': 'Alex Kot', 'day': 1, 'month': 1, 'year': 2000, 'hour': 12, 'min': 30, 'lng': 3.431451, 'lat': 1.417191, 'city': '---'}
+            }
+    responses:
+        200:
+          description: "200 response"
+    """
+
+    DATA = dict()
+    if request.method == 'GET':
+        DATA = dict(request.args)
     if request.method == 'POST':
-        DATA = dict(request.form.to_dict())
-        print(DATA)
-        if session.get("BD") + ".db" in mf.get_BDs():
-            if not mf.register_user(login=DATA["login"], password=DATA["pass"], db=DATA["BD"]):
-                return render_template("auth-register.html", DATA={"status": "Неверные данные", "BDs": mf.get_BDs()})
-            # session["user"] = mf.login_to_id_user(login=DATA["login"], db=DATA["BD"])
-            # session["BD"] = DATA["BD"]
-            # print(session.values())
-            # session.modified = True
-            else:
-                return render_template("index.html")
+        DATA = dict(request.get_json())
+    otvV = DATA
+    DATA = DATA['first']
+    try:
+        DATA['city']
+        otvF = kery.anal_human(name=DATA['FIO'], year=DATA['year'], month=DATA['month'], day=DATA['day'], hour=DATA['hour'],
+                                       min=DATA['min'], lng=float(DATA['lng']), lat=float(DATA['lat']), city=DATA['city'])
+    except:
+        otvF = kery.anal_human(name=DATA['FIO'], year=DATA['year'], month=DATA['month'], day=DATA['day'], hour=DATA['hour'],
+                                       min=DATA['min'], lng=float(DATA['lng']), lat=float(DATA['lat']))
+    DATA = otvV['second']
+    try:
+        DATA['city']
+        otvS = kery.anal_human(name=DATA['FIO'], year=DATA['year'], month=DATA['month'], day=DATA['day'],
+                               hour=DATA['hour'],
+                               min=DATA['min'], lng=float(DATA['lng']), lat=float(DATA['lat']), city=DATA['city'])
+    except:
+        otvS = kery.anal_human(name=DATA['FIO'], year=DATA['year'], month=DATA['month'], day=DATA['day'],
+                               hour=DATA['hour'],
+                               min=DATA['min'], lng=float(DATA['lng']), lat=float(DATA['lat']))
+    otv = dict()
+    otv['SVG'] = kery.anal_two_people(first=otvF, second=otvS)
+    return jsonify(otv)
 
-    if "user" in session.keys():
-        return render_template("auth-login.html")
-    else:
-        return render_template("auth-register.html", DATA={"status": "", "BDs": mf.get_BDs()})
 
-@app.route('/session/')
-def updating_session():
-    res = str(session.items())
-    return res
 
-@app.route('/session-out/')
-def clear_session():
-    session.clear()
-    session.modified = True
-    return str(session.values())
-#
-# @app.route('/<string:strin>', methods = ['GET'])
-# def indexi(strin):
-#     ot = {}
-#     if request.method == 'GET':
-#         ot = dict(request.args)
-#         if ot != {}:
-#             print(ot)
-#     # ot['id'] = 1
-#     try:
-#         ot['id']
-#     except:
-#         ot['id'] = 1
-#
-#     if strin == 'friends':
-#         ot = mf.Friends()
-#     if strin == 'rating':
-#         ot = mf.Rating()
-#     if strin == 'profile':
-#         ot = mf.Profile(ot['id'])#()
-#     if strin == 'clubs':
-#         ot = mf.Clubs()
-#     if strin == 'club_detail':
-#         ot = mf.Club_detail(ot['id'])
-#     if strin == 'events':
-#         ot = mf.Events()
-#     if strin == 'event_detail':
-#         ot = mf.Event_detail(ot['id'])
-#     if strin == 'quests':
-#         ot = mf.Quests()
-#     if strin == 'quest_detail':
-#         ot = mf.Quest_detail(ot['id'])
-#     if strin == 'library':
-#         try:
-#             ot = mf.Library(ot['path'], ot['file'], id=1)
-#         except:
-#             ot = mf.Library('', '', id=1)
-#
-#     if strin == 'favicon.ico':
-#         return ''
-#     if strin == 'get_file':
-#         ott = mf.Library(ot['path'], ot['file'], id=1)
-#         return send_from_directory(ott + "/", ot['file'])
-
-    # print("\nOT " + str(ot))
-    # return render_template(''+strin+'.html', DATA=ot)
 
 
 if __name__ == '__main__':
