@@ -5,3 +5,4 @@ asyncpg
 pydantic[email]
 passlib[bcrypt]
 fastapi-session
+requests

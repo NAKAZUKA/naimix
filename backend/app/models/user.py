@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ARRAY
+from sqlalchemy import Column, Integer, String, Text, DateTime, ARRAY, Float
 from app.database import Base
 
 class User(Base):
@@ -11,7 +11,8 @@ class User(Base):
     birthday = Column(DateTime, nullable=True)
     role = Column(Text, nullable=True, default="user")
     bio = Column(Text, nullable=True)
-    coordinates = Column(ARRAY(Text), nullable=True)
+    city = Column(Text, nullable=True)  # Город пользователя
+    coordinates = Column(ARRAY(Float), nullable=True)  # Список чисел (широта и долгота)
     password = Column(Text, nullable=False)
     email = Column(Text, unique=True, nullable=False)
     phone_number = Column(Text, nullable=True)

@@ -6,34 +6,50 @@ from app.models.user import User
 from app.schemas.user import UserUpdate, UserResponse
 from app.utils.session import get_session
 from datetime import datetime
+from app.utils.location import get_coordinates
+
 
 profile_router = APIRouter(tags=["Profile"], prefix="/profile")
 
 @profile_router.get("/{user_id}", response_model=UserResponse, summary="Получить данные пользователя")
 async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
-    user = await db.execute(select(User).where(User.id == user_id))
-    user = user.scalars().first()
+    user_query = await db.execute(select(User).where(User.id == user_id))
+    user = user_query.scalars().first()
     if not user:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+    # Преобразуем coordinates в числа, если они есть
+    if user.coordinates:
+        try:
+            user.coordinates = [float(coord) for coord in user.coordinates]
+        except ValueError:
+            raise HTTPException(status_code=500, detail="Некорректные координаты в базе данных")
+
     return user
 
-@profile_router.put("/{user_id}", summary="Обновить профиль пользователя")
+
+@profile_router.patch("/{user_id}", summary="Частичное обновление профиля")
 async def update_profile(user_id: int, profile_data: UserUpdate, db: AsyncSession = Depends(get_db)):
     user_query = await db.execute(select(User).where(User.id == user_id))
     user = user_query.scalars().first()
     if not user:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
 
+    # Обновляем только переданные поля
     for field, value in profile_data.dict(exclude_unset=True).items():
-        if field == "birthday" and isinstance(value, datetime):
-            setattr(user, field, value)
+        if field == "city" and value:
+            # Получаем координаты для указанного города
+            coordinates = get_coordinates(value)
+            user.city = value  # Сохраняем введенный город
+            user.coordinates = [coordinates["latitude"], coordinates["longitude"]]  # Сохраняем координаты
         else:
-            setattr(user, field, value)
+            setattr(user, field, value)  # Обновляем только переданные поля
 
     db.add(user)
     await db.commit()
     await db.refresh(user)
     return {"detail": "Профиль успешно обновлен"}
+
 
 
 
