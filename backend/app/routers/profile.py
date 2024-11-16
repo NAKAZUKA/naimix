@@ -35,21 +35,27 @@ async def update_profile(user_id: int, profile_data: UserUpdate, db: AsyncSessio
     if not user:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
 
-    # Обновляем только переданные поля
     for field, value in profile_data.dict(exclude_unset=True).items():
         if field == "city" and value:
-            # Получаем координаты для указанного города
-            coordinates = get_coordinates(value)
-            user.city = value  # Сохраняем введенный город
-            user.coordinates = [coordinates["latitude"], coordinates["longitude"]]  # Сохраняем координаты
+            try:
+                coordinates = get_coordinates(value)
+                user.city = value
+                user.coordinates = [coordinates["latitude"], coordinates["longitude"]]
+            except Exception as e:
+                raise HTTPException(status_code=400, detail=f"Не удалось получить координаты города: {value}. Ошибка: {str(e)}")
+        elif field == "birthday" and value:
+            try:
+                # Преобразуем строку даты в объект datetime
+                user.birthday = datetime.fromisoformat(value)
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Некорректный формат даты. Ожидается ISO 8601: YYYY-MM-DDTHH:MM:SS")
         else:
-            setattr(user, field, value)  # Обновляем только переданные поля
+            setattr(user, field, value)
 
     db.add(user)
     await db.commit()
     await db.refresh(user)
     return {"detail": "Профиль успешно обновлен"}
-
 
 
 

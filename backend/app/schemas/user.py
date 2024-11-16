@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, validator
 from typing import Optional, List
 from datetime import datetime
 
@@ -35,19 +35,45 @@ class UserResponse(BaseModel):
         orm_mode = True
 
 
+# class UserUpdate(BaseModel):
+#     firstname: Optional[str] = None
+#     secondname: Optional[str] = None
+#     birthday: Optional[datetime] = Field(
+#         None,
+#         description="Дата рождения в формате: день-месяц-год-час-минута (DD-MM-YYYY HH:MM)"
+#     )
+#     bio: Optional[str] = None
+#     phone_number: Optional[str] = None
+#     stack: Optional[str] = None
+#     position: Optional[str] = None
+#     cosmogram: Optional[str] = None
+#     city: Optional[str] = None
+
+
 class UserUpdate(BaseModel):
     firstname: Optional[str] = None
     secondname: Optional[str] = None
-    birthday: Optional[datetime] = Field(
+    birthday: Optional[str] = Field(
         None,
-        description="Дата рождения в формате: день-месяц-год-час-минута (DD-MM-YYYY HH:MM)"
+        description="Дата рождения в формате ISO 8601: YYYY-MM-DDTHH:MM:SS"
     )
     bio: Optional[str] = None
     phone_number: Optional[str] = None
     stack: Optional[str] = None
     position: Optional[str] = None
-    cosmogram: Optional[str] = None
     city: Optional[str] = None
+
+    @validator("birthday", pre=True, always=True)
+    def validate_birthday(cls, value):
+        if value:
+            try:
+                # Проверяем и преобразуем строку в datetime
+                datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
+                return value
+            except ValueError:
+                raise ValueError("Некорректный формат даты. Ожидается ISO 8601: YYYY-MM-DDTHH:MM:SS")
+        return value
+
 
 class LoginRequest(BaseModel):
     email: EmailStr
