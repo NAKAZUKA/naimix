@@ -11,7 +11,7 @@ from app.utils.location import get_coordinates
 
 profile_router = APIRouter(tags=["Profile"], prefix="/profile")
 
-@profile_router.get("/{user_id}", response_model=UserResponse, summary="Получить данные пользователя")
+@profile_router.get("/{user_id:int}", response_model=UserResponse, summary="Получить данные пользователя")
 async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
     user_query = await db.execute(select(User).where(User.id == user_id))
     user = user_query.scalars().first()
@@ -60,16 +60,26 @@ async def update_profile(user_id: int, profile_data: UserUpdate, db: AsyncSessio
 
 @profile_router.get("/me", summary="Получить данные текущего пользователя")
 async def get_current_profile(request: Request):
-    print("Handling /profile/me")
+    print("=== Handling /profile/me ===")
+    
+    # Логируем заголовки запроса
+    print("Request headers:", request.headers)
+    
+    # Логируем куки
+    print("Request cookies:", request.cookies)
+
     try:
+        # Пытаемся получить данные сессии
         session_data = get_session(request)
-        print(f"Session data: {session_data}")
+        print("Session data retrieved successfully:", session_data)
         return session_data
     except HTTPException as e:
-        print(f"HTTPException in /profile/me: {e.detail}")
+        print(f"HTTPException: {e.detail}")
         raise e
     except Exception as e:
-        print(f"Unexpected error in /profile/me: {e}")
+        print(f"Unexpected error: {e}")
         raise HTTPException(status_code=500, detail="Ошибка сервера")
+
+
 
 
