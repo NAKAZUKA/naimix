@@ -54,11 +54,8 @@ async def login(credentials: LoginRequest, response: Response, db: AsyncSession 
     if not user or not verify_password(credentials.password, user.password):
         raise HTTPException(status_code=401, detail="Неверные email или пароль")
 
-    # Создаем сессию
     session_data = {"user_id": user.id, "role": user.role, "email": user.email}
     create_session(data=session_data, response=response)
-    
-    # Возвращаем роль в JSON
     return {"detail": "Авторизация успешна", "role": user.role}
 
 
