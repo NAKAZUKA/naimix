@@ -12,27 +12,41 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    // Валидация email
+    if (!email.includes('@')) {
+      setError('Введите корректный email.');
+      return;
+    }
+
     try {
-      const response = await axios.post('http://127.0.0.1:8000/login', {
-        email, 
-        password
-      }); // Отправляем данные на сервер в теле запроса
+      const response = await axios.post(
+        'http://127.0.0.1:8000/login',
+        { email, password },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-      // Проверяем, что ответ содержит информацию об успешной авторизации
+      // Проверяем успешный ответ
       if (response.status === 200) {
-        const user = response.data; // Получаем информацию о пользователе
+        const user = response.data;
 
-        // Сохраняем пользователя в локальном хранилище
-        localStorage.setItem('user', JSON.stringify(user));
-        
-        // Перенаправление в зависимости от роли
+        // Сохраняем токен в localStorage
+        localStorage.setItem('token', user.token); // Рекомендуется сохранять только токен
+
+        // Переход на страницу в зависимости от роли
         if (user.role === 'hr') {
-          navigate('/swiper'); // Перенаправление для HR
+          navigate('/swiper'); // Для HR
         } else if (user.role === 'candidate') {
-          navigate('/home'); // Перенаправление для кандидата
+          navigate('/home'); // Для кандидата
+        } else {
+          navigate('/'); // Дефолтное перенаправление
         }
       }
     } catch (err) {
+      console.error(err.response  err.message  'Unknown error'); // Логируем ошибку
       if (err.response && err.response.data) {
         setError(err.response.data.detail || 'Неверные учетные данные. Пожалуйста, попробуйте снова.');
       } else {
@@ -40,7 +54,6 @@ const Login = () => {
       }
     }
   };
-  console.log({ email, password }); // Добавьте это перед отправкой запроса
 
   return (
     <div>
