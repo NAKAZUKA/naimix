@@ -17,9 +17,6 @@ class UserCreate(BaseModel):
             raise ValueError(f"Недопустимая роль. Выберите одну из: {', '.join(ALLOWED_ROLES)}")
         return value
 
-from pydantic import BaseModel, EmailStr
-from typing import Optional, List
-from datetime import datetime
 
 class UserResponse(BaseModel):
     id: int

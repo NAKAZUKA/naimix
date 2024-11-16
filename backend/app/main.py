@@ -4,6 +4,9 @@ from app.routers.profile import profile_router
 from app.routers.role import role_router
 from app.database import create_tables
 from fastapi.middleware.cors import CORSMiddleware
+from app.routers.team import team_router
+from app.routers.user import user_router
+
 
 
 app = FastAPI(title="User Management Service")
@@ -11,6 +14,9 @@ app = FastAPI(title="User Management Service")
 app.include_router(auth_router)
 app.include_router(profile_router)
 app.include_router(role_router)
+app.include_router(team_router)
+app.include_router(user_router)
+
 
 app.add_middleware(
     CORSMiddleware,
