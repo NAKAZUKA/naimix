@@ -1,5 +1,4 @@
 import datetime
-
 from flask import Flask, render_template, request, send_from_directory, make_response
 from flask import  Flask, render_template, request, redirect, url_for, flash, make_response, session
 import MyFunc as mf
@@ -7,8 +6,8 @@ import settings as conf
 
 app = Flask(__name__, template_folder=conf.GET("template"))
 # app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(days=365)
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
-app.config.update(SESSION_COOKIE_SAMESITE="None", SESSION_COOKIE_SECURE=True)
+app.secret_key = b'+4#y2L"F4Q8z\n\xec]/'
+# app.config.update(SESSION_COOKIE_SAMESITE="None", SESSION_COOKIE_SECURE=True)
 
 # @app.route('/')
 # def index():

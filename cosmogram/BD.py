@@ -1,40 +1,23 @@
-from random import choice
-from string import ascii_uppercase
-import sqlite3
-DATABASE = 'BD.db'
+from pprint import pprint
+
+import psycopg2
+import settings as conf
 
 
-def get_db(BDD=None):
-    global DATABASE
-    if BDD is None:
-        BDD = DATABASE
-    db = sqlite3.connect(BDD)
-    db.row_factory = sqlite3.Row
-    # db.close()
-    return db
+def get_db_connection():
+    conn = psycopg2.connect(host=conf.GET('host_postgres'),
+                            database=conf.GET('database'),
+                            user=conf.GET('user'),
+                            password=conf.GET('password'))
+    return conn
 
+def get_question(sqll):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(sqll)
+    books = cur.fetchall()
+    cur.close()
+    conn.close()
+    return books
 
-def get_question(question, BDD=None):
-    if BDD is None:
-        db = get_db()
-    else:
-        db = get_db(BDD)
-    data = db.execute(question).fetchall()
-    data = [dict(ix) for ix in data]
-    return data
-
-
-def get_insert(question, BDD=None):
-    if BDD is None:
-        db = get_db()
-    else:
-        db = get_db(BDD)
-    con = db.cursor()
-    con.execute(question)
-    db.commit()
-    # data = [dict(ix) for ix in data]
-    # return data
-
-
-def gen_str(leng):
-    return ''.join(choice(ascii_uppercase) for i in range(leng))
+pprint(get_question("SELECT * FROM pg_catalog.pg_tables;"))
