@@ -17,13 +17,17 @@ app.include_router(role_router)
 app.include_router(team_router)
 app.include_router(user_router)
 
+origins = [
+    "http://localhost:5174",  # Добавьте ваш фронтенд-URL
+    "http://127.0.0.1:5174",  # Добавьте альтернативный адрес
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Разрешить доступ с любых источников
-    allow_credentials=True,
-    allow_methods=["*"],  # Разрешить любые HTTP-методы (GET, POST, и т.д.)
-    allow_headers=["*"],  # Разрешить любые заголовки
+    allow_origins=origins,  # Разрешаем конкретные источники
+    allow_credentials=True,  # Включаем поддержку куки
+    allow_methods=["*"],  # Разрешаем любые HTTP-методы
+    allow_headers=["*"],  # Разрешаем любые заголовки
 )
 
 @app.on_event("startup")

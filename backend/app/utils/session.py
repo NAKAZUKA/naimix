@@ -34,19 +34,12 @@ def decode_session_token(token: str) -> dict:
 
 
 def create_session(data: dict, response: Response, session_lifetime: int = 3600):
-    """
-    Создает сессию и добавляет ее в cookie.
-    
-    :param data: Данные сессии (например, user_id, role, email).
-    :param response: Ответ FastAPI, куда будут добавлены cookie.
-    :param session_lifetime: Время жизни сессии в секундах (по умолчанию 3600 секунд = 1 час).
-    """
     session_token = base64.urlsafe_b64encode(json.dumps(data).encode()).decode()
     response.set_cookie(
         key="session_token",
         value=session_token,
         httponly=True,
         max_age=session_lifetime,
-        samesite="Strict",  # Сильная защита от CSRF
-        secure=False,  # Включить True в продакшене с HTTPS
+        samesite="None",  # Установка SameSite=None
+        secure=True,      # Требуется для работы в межсайтовом контексте
     )
