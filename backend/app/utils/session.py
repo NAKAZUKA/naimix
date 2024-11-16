@@ -8,12 +8,17 @@ import json
 sessions: Dict[str, Dict[str, Any]] = {}
 
 
-def get_session(request: Request) -> Dict[str, Any]:
-    """Получает данные текущей сессии из cookies."""
-    session_id = request.cookies.get("session_id")
-    if not session_id or session_id not in sessions:
-        raise HTTPException(status_code=401, detail="Сессия недействительна или истекла")
-    return sessions[session_id]
+def get_session(request: Request) -> dict:
+    session_token = request.cookies.get("session_token")
+    if not session_token:
+        raise HTTPException(status_code=401, detail="Сессия недействительна")
+    
+    try:
+        session_data = decode_session_token(session_token)
+        return session_data
+    except Exception:
+        raise HTTPException(status_code=401, detail="Сессия недействительна")
+
 
 def delete_session(response: Response):
     response.delete_cookie("session_token")

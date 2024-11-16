@@ -61,6 +61,7 @@ async def update_profile(user_id: int, profile_data: UserUpdate, db: AsyncSessio
 
 @profile_router.get("/me", summary="Получить данные текущего пользователя")
 async def get_current_profile(request: Request):
-    """Получение данных текущего пользователя из сессии."""
     session_data = get_session(request)
+    if not session_data:
+        raise HTTPException(status_code=401, detail="Сессия не найдена")
     return session_data
