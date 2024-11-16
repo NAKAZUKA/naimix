@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios'; // Импортируем axios для работы с HTTP-запросами
 import './Auth.css';
 
 const Login = () => {
@@ -8,14 +9,13 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
 
-    // Проверка существующего пользователя
-    const user = existingUsers.find(user => user.email === email && user.password === password);
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/login', { email, password }); // Отправляем данные на сервер
+      const user = response.data; // Предполагаем, что сервер возвращает информацию о пользователе
 
-    if (user) {
       // Сохраняем пользователя в локальном хранилище
       localStorage.setItem('user', JSON.stringify(user));
       
@@ -25,8 +25,12 @@ const Login = () => {
       } else if (user.role === 'candidate') {
         navigate('/home'); // Перенаправление для кандидата
       }
-    } else {
-      setError('Неверные учетные данные. Пожалуйста, попробуйте снова.');
+    } catch (err) {
+      if (err.response && err.response.data) {
+        setError(err.response.data.message || 'Неверные учетные данные. Пожалуйста, попробуйте снова.');
+      } else {
+        setError('Произошла ошибка при входе. Пожалуйста, попробуйте снова.');
+      }
     }
   };
 

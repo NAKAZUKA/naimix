@@ -33,7 +33,7 @@ const Register = () => {
       const userData = { username, email, password, role }; // Формируем данные для отправки
       const response = await axios.post('http://127.0.0.1:8000/register', userData);
       
-      if (response.status === 201) {
+      if (response.status === 200) {
         alert('Регистрация прошла успешно!');
         navigate('/login'); // Перенаправление на страницу входа после регистрации
       }
