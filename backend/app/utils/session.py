@@ -15,9 +15,12 @@ def get_session(request: Request) -> dict:
     
     try:
         session_data = decode_session_token(session_token)
+        print("Decoded session data:", session_data)
         return session_data
-    except Exception:
+    except Exception as e:
+        print("Session decoding failed:", str(e))
         raise HTTPException(status_code=401, detail="Сессия недействительна")
+
 
 
 def delete_session(response: Response):
@@ -45,6 +48,6 @@ def create_session(data: dict, response: Response, session_lifetime: int = 3600)
         value=session_token,
         httponly=True,
         max_age=session_lifetime,
-        samesite="None",  # Установка SameSite=None
-        secure=True,      # Требуется для работы в межсайтовом контексте
+        samesite="None",  # Для межсайтового контекста
+        secure=False,     # Для локальной разработки
     )
