@@ -13,21 +13,28 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/login', { email, password }); // Отправляем данные на сервер
-      const user = response.data; // Предполагаем, что сервер возвращает информацию о пользователе
+      const response = await axios.post('http://127.0.0.1:8000/login', {
+        email, 
+        password
+      }); // Отправляем данные на сервер в теле запроса
 
-      // Сохраняем пользователя в локальном хранилище
-      localStorage.setItem('user', JSON.stringify(user));
-      
-      // Перенаправление в зависимости от роли
-      if (user.role === 'hr') {
-        navigate('/swiper'); // Перенаправление для HR
-      } else if (user.role === 'candidate') {
-        navigate('/home'); // Перенаправление для кандидата
+      // Проверяем, что ответ содержит информацию об успешной авторизации
+      if (response.status === 200) {
+        const user = response.data; // Получаем информацию о пользователе
+
+        // Сохраняем пользователя в локальном хранилище
+        localStorage.setItem('user', JSON.stringify(user));
+        
+        // Перенаправление в зависимости от роли
+        if (user.role === 'hr') {
+          navigate('/swiper'); // Перенаправление для HR
+        } else if (user.role === 'candidate') {
+          navigate('/home'); // Перенаправление для кандидата
+        }
       }
     } catch (err) {
       if (err.response && err.response.data) {
-        setError(err.response.data.message || 'Неверные учетные данные. Пожалуйста, попробуйте снова.');
+        setError(err.response.data.detail || 'Неверные учетные данные. Пожалуйста, попробуйте снова.');
       } else {
         setError('Произошла ошибка при входе. Пожалуйста, попробуйте снова.');
       }
