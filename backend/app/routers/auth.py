@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.database import get_db
 from app.models.user import User
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import UserCreate, UserResponse, LoginRequest
 from app.utils.validation import hash_password
 
 from app.utils.auth import verify_password
@@ -45,11 +45,12 @@ async def register_user(user_data: UserCreate, db: AsyncSession = Depends(get_db
 
 
 @auth_router.post("/login", summary="Авторизация пользователя")
-async def login(email: str, password: str, response: Response, db: AsyncSession = Depends(get_db)):
+async def login(credentials: LoginRequest, response: Response, db: AsyncSession = Depends(get_db)):
     """Авторизация пользователя с использованием сессий."""
-    user_query = await db.execute(select(User).where(User.email == email))
+    user_query = await db.execute(select(User).where(User.email == credentials.email))
     user = user_query.scalars().first()
-    if not user or not verify_password(password, user.password):
+
+    if not user or not verify_password(credentials.password, user.password):
         raise HTTPException(status_code=401, detail="Неверные email или пароль")
 
     # Создаем сессию

@@ -48,3 +48,7 @@ class UserUpdate(BaseModel):
     position: Optional[str] = None
     cosmogram: Optional[str] = None
     city: Optional[str] = None
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
