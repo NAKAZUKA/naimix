@@ -40,6 +40,7 @@ const Login = () => {
       }
     }
   };
+  console.log({ email, password }); // Добавьте это перед отправкой запроса
 
   return (
     <div>
