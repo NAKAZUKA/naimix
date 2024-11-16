@@ -63,12 +63,13 @@ async def get_current_profile(request: Request):
     print("Handling /profile/me")
     try:
         session_data = get_session(request)
-        print(f"Session data for /me: {session_data}")
+        print(f"Session data: {session_data}")
         return session_data
     except HTTPException as e:
-        print(f"Error in /profile/me: {e.detail}")
+        print(f"HTTPException in /profile/me: {e.detail}")
         raise e
     except Exception as e:
         print(f"Unexpected error in /profile/me: {e}")
         raise HTTPException(status_code=500, detail="Ошибка сервера")
+
 

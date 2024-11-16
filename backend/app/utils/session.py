@@ -32,16 +32,14 @@ def decode_session_token(token: str) -> dict:
     try:
         print(f"Decoding token: {token}")
         data = json.loads(base64.urlsafe_b64decode(token).decode())
-        print(f"Decoded token data: {data}")
+        print(f"Decoded data: {data}")
         if not all(key in data for key in ["user_id", "role", "email"]):
             raise ValueError("Некорректная структура токена")
         return data
-    except json.JSONDecodeError:
-        print("Token decoding error: invalid JSON")
-        raise HTTPException(status_code=401, detail="Ошибка декодирования токена")
     except Exception as e:
-        print(f"Unexpected error while decoding token: {e}")
-        raise HTTPException(status_code=401, detail=f"Невалидная сессия: {str(e)}")
+        print(f"Error decoding token: {e}")
+        raise HTTPException(status_code=401, detail="Сессия недействительна")
+
 
 
 
