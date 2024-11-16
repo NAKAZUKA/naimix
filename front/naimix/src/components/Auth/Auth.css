@@ -7,7 +7,7 @@
 }
 
 .auth-container {
-    width: 800px;
+    width: 1000px;
     margin: auto;
     padding: 20px;
     border-radius: 8px;
@@ -22,8 +22,8 @@
   .auth-title {
     margin-bottom: 20px;
     color: white;
-    font-size: 200px;
-    text-shadow: 0 0 10px  ;
+    font-size: 150px;
+    text-shadow: 0 0 10px;
   }
   
   .auth-description {

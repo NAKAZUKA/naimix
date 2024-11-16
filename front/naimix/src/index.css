@@ -11,6 +11,9 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-image: url('./assets/image.png');
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 

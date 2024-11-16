@@ -7,7 +7,7 @@ const AuthPage = () => {
 
   return (
     <div className="auth-container">
-      <h1 className="auth-title">NAIMIX</h1>
+      <h1 className="auth-title">NAIMIX FREELANCE</h1>
       <p className="auth-description">войдите или зарегистрируйтесь</p>
       <div className="auth-buttons">
         <button className="auth-button" onClick={() => navigate('/login')}>Вход</button>
