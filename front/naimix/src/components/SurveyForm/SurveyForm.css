@@ -1,0 +1,65 @@
+/* src/components/SurveyForm.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Добавляем box-sizing для лучшего управления размерами элементов */
+}
+
+
+.form-container {
+    width: 450px;
+    max-width: 1000px; /* Максимальная ширина формы */
+    margin: 50px auto; /* Центрирование формы по горизонтали */
+    padding: 20px; /* Отступы внутри контейнера */
+    background-color: #fff; /* Цвет фона формы */
+    border-radius: 8px; /* Скругление углов */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Тень для формы */
+}
+
+.survey{
+    text-align: center; 
+    color: #2a0150; 
+    margin-bottom: 20px; 
+}
+
+.form-group {
+    margin-bottom: 20px; /* Увеличиваем отступы между полями формы */
+}
+
+label {
+    display: block; /* Блоковое отображение для меток */
+    margin-bottom: 5px; /* Отступ снизу */
+    color: #666; /* Цвет текста меток */
+}
+
+input,
+textarea {
+    width: calc(100% - 20px); /* Уменьшаем ширину на 20px для отступов */
+    padding: 10px; /* Внутренние отступы */
+    border: 1px solid #ccc; /* Рамка */
+    border-radius: 4px; /* Скругление углов */
+    font-size: 16px; /* Размер шрифта */
+    margin-top: 5px; /* Отступ сверху для большей визуальной отделенности */
+}
+
+input:focus,
+textarea:focus {
+    border-color: #007bff; /* Цвет рамки при фокусе */
+    outline: none; /* Убираем стандартное обводка */
+}
+
+.buttonForm {
+    width: 100%; /* Ширина кнопки на 100% */
+    padding: 10px; /* Внутренние отступы */
+    background-color: #007bff; /* Цвет фона кнопки */
+    color: white; /* Цвет текста кнопки */
+    border: none; /* Убираем рамку */
+    border-radius: 4px; /* Скругление углов */
+    font-size: 16px; /* Размер шрифта */
+    cursor: pointer; /* Курсор при наведении */
+    transition: background-color 0.3s; /* Плавный переход цвета фона */
+}
+
+.buttonForm:hover {
+    background-color: #0056b3; /* Цвет фона при наведении */
+}
