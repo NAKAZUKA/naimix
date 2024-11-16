@@ -1,23 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Auth.css';
 
 const Register = () => {
-  const [fullName, setFullName] = useState('');
+  const [username, setUsername] = useState(''); // Поле для имени пользователя
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('candidate'); // По умолчанию кандидат
-  const [category, setCategory] = useState(''); // Категория для HR
+  const [role, setRole] = useState(''); // Выбранная роль
+  const [roles, setRoles] = useState([]); // Список ролей
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // Функция для получения списка ролей
+  const fetchRoles = async () => {
+    try {
+      const response = await axios.get('http://127.0.0.1:8000/roles/');
+      setRoles(response.data); // Установить роли из ответа
+    } catch (err) {
+      setError('Не удалось получить список ролей.');
+    }
+  };
+
+  useEffect(() => {
+    fetchRoles(); // Загружаем роли при монтировании компонента
+  }, []);
+
   const handleRegister = async (e) => {
     e.preventDefault();
-    
+
     try {
-      const userData = { fullName, email, password, role, category };
-      const response = await axios.post('http://localhost:8000/register', userData);
+      const userData = { username, email, password, role }; // Формируем данные для отправки
+      const response = await axios.post('http://127.0.0.1:8000/register', userData);
       
       if (response.status === 201) {
         alert('Регистрация прошла успешно!');
@@ -40,9 +54,9 @@ const Register = () => {
         <input
           className='auth-input'
           type="text"
-          placeholder="ФИО"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
+          placeholder="Имя пользователя"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           required
         />
         <input
@@ -61,19 +75,14 @@ const Register = () => {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <select className='auth-select' value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="candidate">Кандидат</option>
-          <option value="hr">HR</option>
+        <select className='auth-select' value={role} onChange={(e) => setRole(e.target.value)} required>
+          <option value="">Выберите роль</option>
+          {roles.map((roleOption) => (
+            <option key={roleOption.id} value={roleOption.name}>
+              {roleOption.name}
+            </option>
+          ))}
         </select>
-        {role === 'hr' && (
-          <select value={category} onChange={(e) => setCategory(e.target.value)} required>
-            <option value="">Выберите категорию</option>
-            <option value="frontend">Frontend</option>
-            <option value="backend">Backend</option>
-            <option value="qa">QA</option>
-            <option value="test">Test</option>
-          </select>
-        )}
         <button className='register-button' type="submit">Зарегистрироваться</button>        
       </form>
     </div>
