@@ -1,10 +1,10 @@
 import React from 'react'
-import backgroundvideo from '../assets/videobg2.mp4'
+import backgroundimage from '../assets/image.png'
 
 export default function Videobg() {
     return(
         <div className="videobg">
-            <video src={backgroundvideo} autoPlay loop muted />
+            <img src={backgroundimage} autoPlay loop muted />
         </div>
     )
 }

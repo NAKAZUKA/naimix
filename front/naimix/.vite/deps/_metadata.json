@@ -1,0 +1,46 @@
+{
+  "hash": "b48f0ba3",
+  "configHash": "566d1fbb",
+  "lockfileHash": "f930f84b",
+  "browserHash": "fdb58f9b",
+  "optimized": {
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "fb65a185",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "016858d9",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.js",
+      "file": "react-router-dom.js",
+      "fileHash": "85336b33",
+      "needsInterop": false
+    },
+    "react-spring": {
+      "src": "../../node_modules/react-spring/dist/react-spring.modern.mjs",
+      "file": "react-spring.js",
+      "fileHash": "8dd21cd3",
+      "needsInterop": false
+    },
+    "react-use-gesture": {
+      "src": "../../node_modules/react-use-gesture/dist/reactusegesture.esm.js",
+      "file": "react-use-gesture.js",
+      "fileHash": "02bc82f6",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-QPG7G3M7": {
+      "file": "chunk-QPG7G3M7.js"
+    },
+    "chunk-UTEJFLXC": {
+      "file": "chunk-UTEJFLXC.js"
+    }
+  }
+}
